@@ -37,3 +37,6 @@ backend/build
 
 # OS junk
 Thumbs.db
+
+.env
+backend/.env
