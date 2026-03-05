@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import api from "../config/axios";
 import SignupForm from "./SignupForm";
+import "./LoginPage.css";
 
 const LoginPage = () => {
   console.log("LoginPage rendered");
