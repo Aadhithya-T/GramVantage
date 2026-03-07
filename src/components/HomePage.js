@@ -1,8 +1,7 @@
 // src/components/HomePage.js
-import React from 'react';
-import Chatbot from './Chatbot';
-import Slideshow from './Slideshow';
-import './HomePage.css';
+import React from "react";
+import Slideshow from "./Slideshow";
+import "./HomePage.css";
 
 const HomePage = () => {
   return (
@@ -39,7 +38,11 @@ const HomePage = () => {
           <Slideshow />
           <div className="page-description">
             <p>
-              Welcome to GramVantage! Here you can explore government schemes, find job opportunities, connect with the agricultural community, learn about local projects, and support crowdfunding initiatives. Everything is designed to empower our community in simple, accessible English.
+              Welcome to GramVantage! Here you can explore government schemes,
+              find job opportunities, connect with the agricultural community,
+              learn about local projects, and support crowdfunding initiatives.
+              Everything is designed to empower our community in simple,
+              accessible English.
             </p>
           </div>
         </main>
