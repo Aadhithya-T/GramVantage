@@ -1,0 +1,128 @@
+/* HomePage.css */
+.homepage-container {
+    font-family: 'Arial', sans-serif;
+    background-color: #e6f0fa; /* Mild blue background */
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+  
+  /* Header */
+  .homepage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #4a90e2;
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo {
+    width: 50px;
+    margin-right: 0.5rem;
+  }
+  
+  .app-name {
+    font-size: 1.8rem;
+  }
+  
+  .header-right {
+    display: flex;
+    align-items: center;
+    font-size: 1.2rem;
+  }
+  
+  /* Main Body Layout */
+  .homepage-body {
+    display: grid;
+    grid-template-columns: 1fr 3fr 1fr;
+    gap: 1rem;
+    padding: 1rem 2rem;
+  }
+  
+  /* Left Sidebar */
+  .left-sidebar {
+    background-color: #cce0f5; /* Light blue shade */
+    padding: 1rem;
+    border-radius: 8px;
+    height: 100%;
+    box-sizing: border-box;
+  }
+  
+  .sidebar-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .sidebar-menu li {
+    margin: 1rem 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  
+  .sidebar-menu li:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Main Content */
+  .main-content {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  
+  .page-description {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    text-align: center;
+    line-height: 1.5;
+    color: #333;
+  }
+  
+  /* Right Sidebar */
+  .right-sidebar {
+    background-color: #cce0f5; /* Matching left sidebar */
+    padding: 1rem;
+    border-radius: 8px;
+    height: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .homepage-body {
+      grid-template-columns: 1fr;
+    }
+    .left-sidebar,
+    .right-sidebar {
+      margin-bottom: 1rem;
+    }
+  }
+  /* ============================= */
+/* NEW ADDITIONS (without changing the above code) */
+
+/* Increase gap between sidebar menu items */
+.sidebar-menu li {
+    margin: 1.2rem 0; /* Increased from 1rem to 1.2rem */
+  }
+  
+  /* Ensure scalable left and right sections with a gap between them */
+  .homepage-body {
+    gap: 1rem; /* Adds a gap between the left sidebar, main content, and right sidebar */
+  }
+  
