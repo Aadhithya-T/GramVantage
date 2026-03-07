@@ -24,6 +24,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .chatbot-container.minimized:hover {
@@ -43,6 +44,9 @@
 
 .chatbot-container.minimized .chat-content {
   display: none;
+  width: 0;
+  height: 0;
+  overflow: hidden;
 }
 
 .chat-content {
@@ -135,4 +139,3 @@
 .chatbot-send:hover {
   background-color: #357ab8;
 }
-  

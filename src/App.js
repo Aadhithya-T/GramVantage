@@ -1,25 +1,34 @@
 // src/App.js
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LoginPage from './components/LoginPage';
-import CitizenDashboard from './components/CitizenDashboard';
-import OfficialDashboard from './components/OfficialDashboard';
-import NGODashboard from './components/NGODashboard';
-import AvailableSchemes from './components/AvailableSchemes';
-import JobsAvailable from './components/JobsAvailable';
-import AgriculturalConnect from './components/AgriculturalConnect';
-import Projects from './components/Projects';
-import CrowdFunding from './components/CrowdFunding';
-import PendingApplications from './components/PendingApplications';
-import ProjectManagement from './components/ProjectManagement';
-import SchemeAdministration from './components/SchemeAdministration';
-import Collaboration from './components/Collaboration';
-import NGOCollaboration from './components/NGOCollaboration';
-import Programs from './components/Programs';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
+import LoginPage from "./components/LoginPage";
+import CitizenDashboard from "./components/CitizenDashboard";
+import OfficialDashboard from "./components/OfficialDashboard";
+import NGODashboard from "./components/NGODashboard";
+import AvailableSchemes from "./components/AvailableSchemes";
+import JobsAvailable from "./components/JobsAvailable";
+import AgriculturalConnect from "./components/AgriculturalConnect";
+import Projects from "./components/Projects";
+import CrowdFunding from "./components/CrowdFunding";
+import PendingApplications from "./components/PendingApplications";
+import ProjectManagement from "./components/ProjectManagement";
+import SchemeAdministration from "./components/SchemeAdministration";
+import Collaboration from "./components/Collaboration";
+import NGOCollaboration from "./components/NGOCollaboration";
+import Programs from "./components/Programs";
+import Chatbot from "./components/Chatbot";
 
-function App() {
+const AppContent = () => {
+  const location = useLocation();
+  const showChatbot = location.pathname !== "/";
+
   return (
-    <Router>
+    <>
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/dashboard/citizen" element={<CitizenDashboard />} />
@@ -37,6 +46,15 @@ function App() {
         <Route path="/ngo-collaboration" element={<NGOCollaboration />} />
         <Route path="/programs" element={<Programs />} />
       </Routes>
+      {showChatbot && <Chatbot />}
+    </>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }
