@@ -1,4 +1,4 @@
-GramVantage
+# GramVantage
 
 GramVantage is a full-stack MERN application designed to support rural development and governance workflows. It connects village citizens, government officials, and NGOs on a single platform for local news, project tracking, agricultural assistance, and inter-department collaboration.
 
@@ -29,17 +29,28 @@ GramVantage is a full-stack MERN application designed to support rural developme
 - React (Frontend)
 - Node.js + Express (Backend)
 - MongoDB (Database)
+- JWT (Authentication)
 - REST APIs
 
 ## Project Structure
 
-frontend/ — React client  
-backend/ — Express server  
-models/ — MongoDB schemas  
-routes/ — API endpoints  
-middleware/ — auth & error handlers
+```
+frontend/   — React client
+backend/    — Express server
+models/     — MongoDB schemas
+routes/     — API endpoints
+middleware/ — Auth & error handlers
+```
 
 ## Local Setup
+
+### Backend
+
+```bash
+cd backend
+npm install
+node server.js
+```
 
 ### Frontend
 
@@ -47,4 +58,14 @@ middleware/ — auth & error handlers
 cd frontend
 npm install
 npm start
+```
+
+### Environment Variables
+
+Create a `.env` file inside the `backend/` folder:
+
+```
+MONGO_URI=mongodb://127.0.0.1:27017/GramVantage
+JWT_SECRET=your_secret_key
+PORT=5000
 ```
