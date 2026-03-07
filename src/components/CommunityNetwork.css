@@ -1,0 +1,202 @@
+.community-network {
+  padding: 2rem;
+}
+
+.community-network h2 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.network-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 1rem;
+}
+
+.network-tab {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  font-weight: 500;
+}
+
+.network-tab:hover {
+  color: #27ae60;
+  transform: translateY(-2px);
+}
+
+.network-tab.active {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.network-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1rem;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #27ae60;
+  transition: all 0.3s ease;
+}
+
+.add-member-btn,
+.create-event-btn,
+.share-resource-btn {
+  background: #27ae60;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.add-member-btn:hover,
+.create-event-btn:hover,
+.share-resource-btn:hover {
+  background: #219a52;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(39,174,96,0.2);
+}
+
+.members-grid,
+.events-grid,
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.member-card,
+.event-card,
+.resource-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #eee;
+}
+
+.member-card:hover,
+.event-card:hover,
+.resource-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(39,174,96,0.15);
+}
+
+.member-header,
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.role-badge {
+  background: #e8f6f0;
+  color: #27ae60;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+}
+
+.member-details,
+.event-details {
+  margin: 1rem 0;
+}
+
+.connect-btn,
+.register-btn,
+.download-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.connect-btn:hover,
+.register-btn:hover,
+.download-btn:hover {
+  background: #219a52;
+  transform: translateY(-2px);
+}
+
+.event-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  margin: 0.5rem 0;
+}
+
+.event-status.upcoming {
+  background: #e8f6f0;
+  color: #27ae60;
+}
+
+.event-status.open-for-registration {
+  background: #fff3e0;
+  color: #f39c12;
+}
+
+.resource-type {
+  background: #e8f6f0;
+  color: #27ae60;
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.shared-by {
+  color: #666;
+  font-size: 0.875rem;
+  margin: 0.5rem 0;
+}
+
+.resource-stats {
+  color: #666;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .network-tabs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .network-tab {
+    width: 100%;
+    text-align: center;
+  }
+
+  .members-grid,
+  .events-grid,
+  .resources-grid {
+    grid-template-columns: 1fr;
+  }
+}
