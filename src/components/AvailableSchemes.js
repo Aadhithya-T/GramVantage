@@ -8,6 +8,7 @@ const AvailableSchemes = () => {
   const [schemes, setSchemes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [applyStatus, setApplyStatus] = useState({});
 
   useEffect(() => {
     const fetchSchemes = async () => {
@@ -20,21 +21,17 @@ const AvailableSchemes = () => {
         setLoading(false);
       }
     };
-
     fetchSchemes();
   }, []);
 
-  const handleNavigation = (path) => {
-    navigate(path);
-  };
-
-  const handleApply = (scheme) => {
-    if (
-      window.confirm(
-        `You will be redirected to ${scheme.name}'s official portal. Do you want to continue?`,
-      )
-    ) {
-      window.open(scheme.portalUrl, "_blank", "noopener,noreferrer");
+  const handleApply = async (schemeId) => {
+    setApplyStatus((prev) => ({ ...prev, [schemeId]: "loading" }));
+    try {
+      await api.post(`/api/schemes/${schemeId}/apply`);
+      setApplyStatus((prev) => ({ ...prev, [schemeId]: "success" }));
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to apply";
+      setApplyStatus((prev) => ({ ...prev, [schemeId]: msg }));
     }
   };
 
@@ -64,7 +61,16 @@ const AvailableSchemes = () => {
         </div>
         <div className="header-right">
           <span className="user-profile">👤</span>
-          <button className="logout-button">Logout</button>
+          <button
+            className="logout-button"
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("userType");
+              navigate("/");
+            }}
+          >
+            Logout
+          </button>
         </div>
       </header>
 
@@ -74,37 +80,31 @@ const AvailableSchemes = () => {
             <ul>
               <li
                 className="menu-item"
-                onClick={() => handleNavigation("/dashboard/citizen")}
+                onClick={() => navigate("/dashboard/citizen")}
               >
                 Dashboard
               </li>
               <li
                 className="menu-item active"
-                onClick={() => handleNavigation("/schemes")}
+                onClick={() => navigate("/schemes")}
               >
                 Available Schemes
               </li>
-              <li
-                className="menu-item"
-                onClick={() => handleNavigation("/jobs")}
-              >
+              <li className="menu-item" onClick={() => navigate("/jobs")}>
                 Jobs Available
               </li>
               <li
                 className="menu-item"
-                onClick={() => handleNavigation("/agriculture")}
+                onClick={() => navigate("/agriculture")}
               >
                 Agricultural Connect
               </li>
-              <li
-                className="menu-item"
-                onClick={() => handleNavigation("/projects")}
-              >
+              <li className="menu-item" onClick={() => navigate("/projects")}>
                 Projects
               </li>
               <li
                 className="menu-item"
-                onClick={() => handleNavigation("/crowdfunding")}
+                onClick={() => navigate("/crowdfunding")}
               >
                 Crowd Funding
               </li>
@@ -116,8 +116,8 @@ const AvailableSchemes = () => {
           <div className="welcome-section">
             <h2>Available Schemes</h2>
             <p>
-              Explore and apply for various government schemes available for
-              your benefit.
+              Explore and apply for local village schemes available for your
+              benefit.
             </p>
           </div>
 
@@ -141,12 +141,46 @@ const AvailableSchemes = () => {
                       <span className="status-badge">{scheme.status}</span>
                     </p>
                   </div>
-                  <button
-                    className="apply-button"
-                    onClick={() => handleApply(scheme)}
-                  >
-                    Apply Now
-                  </button>
+                  {scheme.status === "Closed" ? (
+                    <button
+                      className="apply-button"
+                      disabled
+                      style={{ opacity: 0.5, cursor: "not-allowed" }}
+                    >
+                      Scheme Closed
+                    </button>
+                  ) : applyStatus[scheme._id] === "success" ? (
+                    <button
+                      className="apply-button"
+                      disabled
+                      style={{ backgroundColor: "#27ae60" }}
+                    >
+                      Applied Successfully
+                    </button>
+                  ) : applyStatus[scheme._id] === "loading" ? (
+                    <button className="apply-button" disabled>
+                      Applying...
+                    </button>
+                  ) : applyStatus[scheme._id] ? (
+                    <div>
+                      <p style={{ color: "red", fontSize: "13px" }}>
+                        {applyStatus[scheme._id]}
+                      </p>
+                      <button
+                        className="apply-button"
+                        onClick={() => handleApply(scheme._id)}
+                      >
+                        Try Again
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      className="apply-button"
+                      onClick={() => handleApply(scheme._id)}
+                    >
+                      Apply Now
+                    </button>
+                  )}
                 </div>
               ))
             )}

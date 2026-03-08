@@ -9,13 +9,16 @@ const SchemeAdministration = () => {
   const [loading, setLoading] = useState(true);
   const [schemes, setSchemes] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showApplicantsModal, setShowApplicantsModal] = useState(false);
+  const [selectedScheme, setSelectedScheme] = useState(null);
+  const [applicants, setApplicants] = useState([]);
+  const [applicantsLoading, setApplicantsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     eligibility: "",
     deadline: "Ongoing",
     status: "Open",
-    portalUrl: "",
   });
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -42,10 +45,6 @@ const SchemeAdministration = () => {
     navigate("/");
   };
 
-  const toggleProfileMenu = () => {
-    setShowProfileMenu(!showProfileMenu);
-  };
-
   const handleFormChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -63,7 +62,6 @@ const SchemeAdministration = () => {
         eligibility: "",
         deadline: "Ongoing",
         status: "Open",
-        portalUrl: "",
       });
       fetchSchemes();
     } catch (error) {
@@ -74,12 +72,44 @@ const SchemeAdministration = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this scheme?")) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this scheme? All applications will also be deleted.",
+      )
+    )
+      return;
     try {
       await api.delete(`/api/schemes/${id}`);
       fetchSchemes();
     } catch (error) {
       console.error("Error deleting scheme:", error);
+    }
+  };
+
+  const handleViewApplicants = async (scheme) => {
+    setSelectedScheme(scheme);
+    setShowApplicantsModal(true);
+    setApplicantsLoading(true);
+    try {
+      const res = await api.get(`/api/schemes/${scheme._id}/applications`);
+      setApplicants(res.data);
+    } catch (error) {
+      console.error("Error fetching applicants:", error);
+    } finally {
+      setApplicantsLoading(false);
+    }
+  };
+
+  const handleUpdateStatus = async (schemeId, appId, status) => {
+    try {
+      await api.patch(`/api/schemes/${schemeId}/applications/${appId}`, {
+        status,
+      });
+      setApplicants((prev) =>
+        prev.map((a) => (a._id === appId ? { ...a, status } : a)),
+      );
+    } catch (error) {
+      console.error("Error updating application:", error);
     }
   };
 
@@ -101,7 +131,10 @@ const SchemeAdministration = () => {
         </div>
         <div className="header-right">
           <div className="profile-container">
-            <span className="user-profile" onClick={toggleProfileMenu}>
+            <span
+              className="user-profile"
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+            >
               👤
             </span>
             {showProfileMenu && (
@@ -154,9 +187,7 @@ const SchemeAdministration = () => {
         <main className="main-content">
           <div className="welcome-section">
             <h2>Scheme Administration</h2>
-            <p>
-              Manage and monitor government schemes and their implementation.
-            </p>
+            <p>Manage local village schemes and review citizen applications.</p>
           </div>
 
           <div className="scheme-stats-grid">
@@ -166,15 +197,17 @@ const SchemeAdministration = () => {
               <p className="description">Active and Open</p>
             </div>
             <div className="stats-card pending-applications">
-              <h3>Pending Applications</h3>
-              <p className="amount">--</p>
-              <p className="description">Coming soon</p>
+              <h3>Total Applications</h3>
+              <p className="amount">
+                {schemes.reduce((sum, s) => sum + (s.applicationCount || 0), 0)}
+              </p>
+              <p className="description">Across all schemes</p>
             </div>
           </div>
 
           <div className="schemes-section">
             <div className="section-header">
-              <h3>Active Schemes</h3>
+              <h3>Local Schemes</h3>
               <button
                 className="add-scheme-button"
                 onClick={() => setShowAddModal(true)}
@@ -208,26 +241,19 @@ const SchemeAdministration = () => {
                           <span className="value">{scheme.deadline}</span>
                         </div>
                       </div>
-                      <div className="detail-row">
-                        <div className="detail-item">
-                          <span className="label">Portal:</span>
-                          <a
-                            href={scheme.portalUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="value"
-                          >
-                            {scheme.portalUrl}
-                          </a>
-                        </div>
-                      </div>
                     </div>
                     <div className="scheme-actions">
+                      <button
+                        className="action-button"
+                        onClick={() => handleViewApplicants(scheme)}
+                      >
+                        View Applicants
+                      </button>
                       <button
                         className="action-button delete-button"
                         onClick={() => handleDelete(scheme._id)}
                       >
-                        Delete Scheme
+                        Delete
                       </button>
                     </div>
                   </div>
@@ -238,11 +264,14 @@ const SchemeAdministration = () => {
         </main>
       </div>
 
+      {/* Add Scheme Modal */}
       {showAddModal && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h2>Add New Scheme</h2>
-            {formError && <p style={{ color: "red" }}>{formError}</p>}
+            {formError && (
+              <p style={{ color: "red", marginBottom: "10px" }}>{formError}</p>
+            )}
             <form onSubmit={handleAddScheme}>
               <div className="form-group">
                 <label>Scheme Name</label>
@@ -293,16 +322,6 @@ const SchemeAdministration = () => {
                   <option value="Closed">Closed</option>
                 </select>
               </div>
-              <div className="form-group">
-                <label>Portal URL</label>
-                <input
-                  type="url"
-                  name="portalUrl"
-                  value={formData.portalUrl}
-                  onChange={handleFormChange}
-                  required
-                />
-              </div>
               <div className="modal-actions">
                 <button
                   type="submit"
@@ -320,6 +339,83 @@ const SchemeAdministration = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Applicants Modal */}
+      {showApplicantsModal && selectedScheme && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Applicants — {selectedScheme.name}</h2>
+            {applicantsLoading ? (
+              <div
+                className="loading-container"
+                style={{ height: "auto", padding: "20px" }}
+              >
+                <div className="loading-spinner"></div>
+              </div>
+            ) : applicants.length === 0 ? (
+              <p>No applications yet.</p>
+            ) : (
+              <div className="applicants-list">
+                {applicants.map((app) => (
+                  <div key={app._id} className="applicant-card">
+                    <div className="applicant-info">
+                      <p>
+                        <strong>{app.name}</strong>
+                      </p>
+                      <p style={{ fontSize: "13px", color: "#666" }}>
+                        Aadhar: {app.aadhar}
+                      </p>
+                      <span
+                        className={`status-badge ${app.status.toLowerCase()}`}
+                      >
+                        {app.status}
+                      </span>
+                    </div>
+                    {app.status === "Pending" && (
+                      <div className="applicant-actions">
+                        <button
+                          className="save-button"
+                          style={{ padding: "6px 14px", fontSize: "13px" }}
+                          onClick={() =>
+                            handleUpdateStatus(
+                              selectedScheme._id,
+                              app._id,
+                              "Approved",
+                            )
+                          }
+                        >
+                          Approve
+                        </button>
+                        <button
+                          className="action-button delete-button"
+                          style={{ padding: "6px 14px", fontSize: "13px" }}
+                          onClick={() =>
+                            handleUpdateStatus(
+                              selectedScheme._id,
+                              app._id,
+                              "Rejected",
+                            )
+                          }
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="modal-actions" style={{ marginTop: "20px" }}>
+              <button
+                className="cancel-button"
+                onClick={() => setShowApplicantsModal(false)}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

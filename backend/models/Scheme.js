@@ -7,7 +7,7 @@ const SchemeSchema = new mongoose.Schema(
     eligibility: { type: String, required: true },
     deadline: { type: String, default: "Ongoing" },
     status: { type: String, enum: ["Open", "Closed"], default: "Open" },
-    portalUrl: { type: String, required: true },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true },
 );

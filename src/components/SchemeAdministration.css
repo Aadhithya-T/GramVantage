@@ -312,3 +312,30 @@
   background-color: #e74c3c;
   color: white;
 }
+.applicant-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.applicant-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.status-badge.pending {
+  background-color: #f39c12;
+  color: white;
+}
+.status-badge.approved {
+  background-color: #27ae60;
+  color: white;
+}
+.status-badge.rejected {
+  background-color: #e74c3c;
+  color: white;
+}
