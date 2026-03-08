@@ -184,6 +184,12 @@ const ProjectManagement = () => {
               >
                 Collaboration
               </li>
+              <li
+                className="menu-item"
+                onClick={() => navigate("/job-management")}
+              >
+                Job Management
+              </li>
             </ul>
           </nav>
         </aside>
