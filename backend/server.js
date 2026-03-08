@@ -5,6 +5,7 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
 const schemeRoutes = require("./routes/schemeRoutes");
+const jobRoutes = require("./routes/jobRoutes");
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api", authRoutes);
 app.use("/api/schemes", schemeRoutes);
+app.use("/api/jobs", jobRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

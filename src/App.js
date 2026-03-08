@@ -22,6 +22,7 @@ import Collaboration from "./components/Collaboration";
 import NGOCollaboration from "./components/NGOCollaboration";
 import Programs from "./components/Programs";
 import Chatbot from "./components/Chatbot";
+import JobManagement from "./components/JobManagement";
 
 const AppContent = () => {
   const location = useLocation();
@@ -45,6 +46,7 @@ const AppContent = () => {
         <Route path="/collaboration" element={<Collaboration />} />
         <Route path="/ngo-collaboration" element={<NGOCollaboration />} />
         <Route path="/programs" element={<Programs />} />
+        <Route path="/job-management" element={<JobManagement />} />
       </Routes>
       {showChatbot && <Chatbot />}
     </>

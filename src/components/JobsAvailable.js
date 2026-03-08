@@ -1,48 +1,44 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Dashboard.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../config/axios";
+import "./Dashboard.css";
 
 const JobsAvailable = () => {
   const navigate = useNavigate();
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleNavigation = (path) => {
-    navigate(path);
-  };
-  const jobs = [
-    {
-      id: 1,
-      title: 'Rural Development Officer',
-      department: 'Panchayat Administration',
-      location: 'Local Panchayat Office',
-      type: 'Full-time',
-      salary: '₹35,000 - ₹45,000 per month',
-      requirements: 'Bachelor\'s degree in Rural Development or related field, 2+ years experience',
-      deadline: '2024-03-25',
-      status: 'Active'
-    },
-    {
-      id: 2,
-      title: 'Agricultural Extension Worker',
-      department: 'Agriculture',
-      location: 'Various Villages',
-      type: 'Full-time',
-      salary: '₹28,000 - ₹35,000 per month',
-      requirements: 'Diploma in Agriculture, Knowledge of local farming practices',
-      deadline: '2024-04-10',
-      status: 'Active'
-    },
-    {
-      id: 3,
-      title: 'Community Health Worker',
-      department: 'Health & Sanitation',
-      location: 'Primary Health Center',
-      type: 'Part-time',
-      salary: '₹18,000 - ₹22,000 per month',
-      requirements: 'Healthcare certification, Good communication skills',
-      deadline: '2024-03-30',
-      status: 'Active'
-    }
-  ];
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const res = await api.get("/api/jobs");
+        setJobs(res.data);
+      } catch (err) {
+        setError("Failed to load jobs. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchJobs();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading jobs...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="loading-container">
+        <p>{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-container">
@@ -53,7 +49,16 @@ const JobsAvailable = () => {
         </div>
         <div className="header-right">
           <span className="user-profile">👤</span>
-          <button className="logout-button">Logout</button>
+          <button
+            className="logout-button"
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("userType");
+              navigate("/");
+            }}
+          >
+            Logout
+          </button>
         </div>
       </header>
 
@@ -61,12 +66,36 @@ const JobsAvailable = () => {
         <aside className="dashboard-sidebar">
           <nav className="sidebar-menu">
             <ul>
-              <li className="menu-item" onClick={() => handleNavigation('/dashboard/citizen')}>Dashboard</li>
-              <li className="menu-item" onClick={() => handleNavigation('/schemes')}>Available Schemes</li>
-              <li className="menu-item active" onClick={() => handleNavigation('/jobs')}>Jobs Available</li>
-              <li className="menu-item" onClick={() => handleNavigation('/agriculture')}>Agricultural connect</li>
-              <li className="menu-item" onClick={() => handleNavigation('/projects')}>Projects</li>
-              <li className="menu-item" onClick={() => handleNavigation('/crowdfunding')}>Crowd Funding</li>
+              <li
+                className="menu-item"
+                onClick={() => navigate("/dashboard/citizen")}
+              >
+                Dashboard
+              </li>
+              <li className="menu-item" onClick={() => navigate("/schemes")}>
+                Available Schemes
+              </li>
+              <li
+                className="menu-item active"
+                onClick={() => navigate("/jobs")}
+              >
+                Jobs Available
+              </li>
+              <li
+                className="menu-item"
+                onClick={() => navigate("/agriculture")}
+              >
+                Agricultural Connect
+              </li>
+              <li className="menu-item" onClick={() => navigate("/projects")}>
+                Projects
+              </li>
+              <li
+                className="menu-item"
+                onClick={() => navigate("/crowdfunding")}
+              >
+                Crowd Funding
+              </li>
             </ul>
           </nav>
         </aside>
@@ -74,27 +103,45 @@ const JobsAvailable = () => {
         <main className="main-content">
           <div className="welcome-section">
             <h2>Available Jobs</h2>
-            <p>Explore employment opportunities in your local government and community.</p>
+            <p>
+              Explore employment opportunities in your local government and
+              community.
+            </p>
           </div>
 
           <div className="jobs-list">
-            {jobs.map(job => (
-              <div key={job.id} className="job-card">
-                <h3>{job.title}</h3>
-                <div className="job-header">
-                  <span className="department">{job.department}</span>
-                  <span className="job-type">{job.type}</span>
-                  <span className="status-badge">{job.status}</span>
+            {jobs.length === 0 ? (
+              <p>No jobs available at the moment.</p>
+            ) : (
+              jobs.map((job) => (
+                <div key={job._id} className="job-card">
+                  <h3>{job.title}</h3>
+                  <div className="job-header">
+                    <span className="department">{job.department}</span>
+                    <span className="job-type">{job.type}</span>
+                    <span
+                      className={`status-badge ${job.status.toLowerCase()}`}
+                    >
+                      {job.status}
+                    </span>
+                  </div>
+                  <div className="job-details">
+                    <p>
+                      <strong>Location:</strong> {job.location}
+                    </p>
+                    <p>
+                      <strong>Salary:</strong> {job.salary}
+                    </p>
+                    <p>
+                      <strong>Requirements:</strong> {job.requirements}
+                    </p>
+                    <p>
+                      <strong>Application Deadline:</strong> {job.deadline}
+                    </p>
+                  </div>
                 </div>
-                <div className="job-details">
-                  <p><strong>Location:</strong> {job.location}</p>
-                  <p><strong>Salary:</strong> {job.salary}</p>
-                  <p><strong>Requirements:</strong> {job.requirements}</p>
-                  <p><strong>Application Deadline:</strong> {job.deadline}</p>
-                </div>
-                <button className="apply-button">Apply Now</button>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </main>
       </div>

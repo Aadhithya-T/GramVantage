@@ -1,7 +1,7 @@
 .dashboard-container {
   min-height: 100vh;
   background-color: #f5f6fa;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .dashboard-header {
@@ -193,7 +193,9 @@
   gap: 1rem;
 }
 
-.view-button, .approve-button, .reject-button {
+.view-button,
+.approve-button,
+.reject-button {
   padding: 8px 16px;
   border: none;
   border-radius: 6px;
