@@ -666,3 +666,59 @@
   color: #7f8c8d;
   font-size: 0.9rem;
 }
+.job-card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  transition: transform 0.3s ease;
+}
+
+.job-card:hover {
+  transform: translateY(-3px);
+}
+
+.job-card h3 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+  font-size: 18px;
+}
+
+.job-header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.department {
+  background-color: #eaf4fb;
+  color: #2980b9;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.job-type {
+  background-color: #eafaf1;
+  color: #27ae60;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.job-details p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.jobs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
