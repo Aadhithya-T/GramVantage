@@ -22,6 +22,37 @@ const JobManagement = () => {
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Job Applications State
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [applications, setApplications] = useState([]);
+  const [showApplicationsModal, setShowApplicationsModal] = useState(false);
+  const [loadingApplications, setLoadingApplications] = useState(false);
+
+  const handleViewApplications = async (job) => {
+    setSelectedJob(job);
+    setShowApplicationsModal(true);
+    setLoadingApplications(true);
+    try {
+      const res = await api.get(`/api/jobs/${job._id}/applications`);
+      setApplications(res.data);
+    } catch (error) {
+      console.error("Error fetching job applications:", error);
+    } finally {
+      setLoadingApplications(false);
+    }
+  };
+
+  const handleUpdateApplicationStatus = async (appId, status) => {
+    try {
+      await api.patch(`/api/jobs/${selectedJob._id}/applications/${appId}`, { status });
+      const res = await api.get(`/api/jobs/${selectedJob._id}/applications`);
+      setApplications(res.data);
+    } catch (error) {
+      console.error("Error updating application status:", error);
+      alert(error.response?.data?.message || "Failed to update application status");
+    }
+  };
+
   const fetchJobs = async () => {
     try {
       setLoading(true);
@@ -223,6 +254,13 @@ const JobManagement = () => {
                     </div>
                     <div className="scheme-actions">
                       <button
+                        className="action-button view-applications-button"
+                        onClick={() => handleViewApplications(job)}
+                        style={{ marginRight: "10px", backgroundColor: "#2980b9" }}
+                      >
+                        View Applications
+                      </button>
+                      <button
                         className="action-button delete-button"
                         onClick={() => handleDelete(job._id)}
                       >
@@ -344,6 +382,61 @@ const JobManagement = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showApplicationsModal && selectedJob && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: "600px", width: "90%" }}>
+            <h2>Applications for {selectedJob.title}</h2>
+            {loadingApplications ? (
+              <p>Loading applications...</p>
+            ) : applications.length === 0 ? (
+              <p style={{ margin: "15px 0" }}>No applications received yet.</p>
+            ) : (
+              <div className="applications-list" style={{ maxHeight: "350px", overflowY: "auto", margin: "15px 0" }}>
+                {applications.map((app) => (
+                  <div key={app._id} className="application-card" style={{ border: "1px solid #ddd", padding: "10px", borderRadius: "5px", marginBottom: "10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <p style={{ margin: "3px 0" }}><strong>Name:</strong> {app.name}</p>
+                      <p style={{ margin: "3px 0" }}><strong>Mobile:</strong> {app.mobile}</p>
+                      <p style={{ margin: "3px 0" }}><strong>Status:</strong> <span className={`status-badge ${app.status.toLowerCase()}`}>{app.status}</span></p>
+                    </div>
+                    {app.status === "Pending" && (
+                      <div style={{ display: "flex", gap: "10px" }}>
+                        <button
+                          className="save-button"
+                          onClick={() => handleUpdateApplicationStatus(app._id, "Approved")}
+                          style={{ backgroundColor: "#27ae60", padding: "5px 10px", minWidth: "auto" }}
+                        >
+                          Approve
+                        </button>
+                        <button
+                          className="cancel-button"
+                          onClick={() => handleUpdateApplicationStatus(app._id, "Rejected")}
+                          style={{ backgroundColor: "#c0392b", padding: "5px 10px", minWidth: "auto" }}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="modal-actions">
+              <button
+                className="cancel-button"
+                onClick={() => {
+                  setShowApplicationsModal(false);
+                  setSelectedJob(null);
+                  setApplications([]);
+                }}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

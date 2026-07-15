@@ -8,20 +8,43 @@ const JobsAvailable = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [myApplications, setMyApplications] = useState([]);
 
   useEffect(() => {
-    const fetchJobs = async () => {
+    const fetchJobsAndApplications = async () => {
       try {
-        const res = await api.get("/api/jobs");
-        setJobs(res.data);
+        const jobsRes = await api.get("/api/jobs");
+        setJobs(jobsRes.data);
+        
+        try {
+          const appsRes = await api.get("/api/jobs/my/applications");
+          setMyApplications(appsRes.data);
+        } catch (appErr) {
+          console.error("Failed to load applications:", appErr);
+        }
       } catch (err) {
         setError("Failed to load jobs. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
-    fetchJobs();
+    fetchJobsAndApplications();
   }, []);
+
+  const handleApply = async (jobId) => {
+    try {
+      await api.post(`/api/jobs/${jobId}/apply`);
+      const appsRes = await api.get("/api/jobs/my/applications");
+      setMyApplications(appsRes.data);
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to apply");
+    }
+  };
+
+  const getAppliedStatus = (jobId) => {
+    const app = myApplications.find(a => (a.job?._id === jobId || a.job === jobId));
+    return app ? app.status : null;
+  };
 
   if (loading) {
     return (
@@ -113,34 +136,72 @@ const JobsAvailable = () => {
             {jobs.length === 0 ? (
               <p>No jobs available at the moment.</p>
             ) : (
-              jobs.map((job) => (
-                <div key={job._id} className="job-card">
-                  <h3>{job.title}</h3>
-                  <div className="job-header">
-                    <span className="department">{job.department}</span>
-                    <span className="job-type">{job.type}</span>
-                    <span
-                      className={`status-badge ${job.status.toLowerCase()}`}
-                    >
-                      {job.status}
-                    </span>
+              jobs.map((job) => {
+                const appliedStatus = getAppliedStatus(job._id);
+                return (
+                  <div key={job._id} className="job-card">
+                    <h3>{job.title}</h3>
+                    <div className="job-header">
+                      <span className="department">{job.department}</span>
+                      <span className="job-type">{job.type}</span>
+                      <span
+                        className={`status-badge ${job.status.toLowerCase()}`}
+                      >
+                        {job.status}
+                      </span>
+                    </div>
+                    <div className="job-details">
+                      <p>
+                        <strong>Location:</strong> {job.location}
+                      </p>
+                      <p>
+                        <strong>Salary:</strong> {job.salary}
+                      </p>
+                      <p>
+                        <strong>Requirements:</strong> {job.requirements}
+                      </p>
+                      <p>
+                        <strong>Application Deadline:</strong> {job.deadline}
+                      </p>
+                    </div>
+                    <div className="job-actions" style={{ marginTop: "15px" }}>
+                      {job.status === "Closed" ? (
+                        <button
+                          className="apply-button"
+                          disabled
+                          style={{ opacity: 0.5, cursor: "not-allowed" }}
+                        >
+                          Job Closed
+                        </button>
+                      ) : appliedStatus ? (
+                        <button
+                          className="apply-button"
+                          disabled
+                          style={{
+                            backgroundColor:
+                              appliedStatus === "Approved"
+                                ? "#27ae60"
+                                : appliedStatus === "Rejected"
+                                ? "#c0392b"
+                                : "#f39c12",
+                            color: "white",
+                            cursor: "default"
+                          }}
+                        >
+                          Applied ({appliedStatus})
+                        </button>
+                      ) : (
+                        <button
+                          className="apply-button"
+                          onClick={() => handleApply(job._id)}
+                        >
+                          Apply Now
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <div className="job-details">
-                    <p>
-                      <strong>Location:</strong> {job.location}
-                    </p>
-                    <p>
-                      <strong>Salary:</strong> {job.salary}
-                    </p>
-                    <p>
-                      <strong>Requirements:</strong> {job.requirements}
-                    </p>
-                    <p>
-                      <strong>Application Deadline:</strong> {job.deadline}
-                    </p>
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </main>
