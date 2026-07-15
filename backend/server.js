@@ -6,6 +6,7 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
 const schemeRoutes = require("./routes/schemeRoutes");
 const jobRoutes = require("./routes/jobRoutes");
+const agriRoutes = require("./routes/agriRoutes");
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.get("/", (req, res) => {
 app.use("/api", authRoutes);
 app.use("/api/schemes", schemeRoutes);
 app.use("/api/jobs", jobRoutes);
+app.use("/api/agri", agriRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
