@@ -7,6 +7,7 @@ const authRoutes = require("./routes/auth");
 const schemeRoutes = require("./routes/schemeRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const agriRoutes = require("./routes/agriRoutes");
+const projectRoutes = require("./routes/projectRoutes");
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use("/api", authRoutes);
 app.use("/api/schemes", schemeRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/agri", agriRoutes);
+app.use("/api/projects", projectRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../config/axios";
 import "./Dashboard.css";
 
 const ProjectManagement = () => {
@@ -10,6 +11,23 @@ const ProjectManagement = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    budget: "",
+    spent: "₹0",
+    progress: "0%",
+    status: "Planning Phase",
+    startDate: "",
+    endDate: "",
+    contractor: "",
+    location: ""
+  });
+  const [formError, setFormError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
   const [stats, setStats] = useState({
     totalBudget: 0,
     budgetUtilized: 0,
@@ -17,69 +35,59 @@ const ProjectManagement = () => {
     completedProjects: 0,
   });
 
+  const parseValue = (valStr) => {
+    if (!valStr) return 0;
+    const clean = valStr.replace(/[₹$,]/g, '').trim().toLowerCase();
+    let num = parseFloat(clean);
+    if (isNaN(num)) return 0;
+    if (clean.includes("crore")) {
+      num = num * 10000000;
+    } else if (clean.includes("lakh")) {
+      num = num * 100000;
+    }
+    return num;
+  };
+
+  const formatCrore = (num) => {
+    return (num / 10000000).toFixed(2);
+  };
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get("/api/projects");
+      const data = res.data;
+      setProjects(data);
+
+      let totalB = 0;
+      let totalS = 0;
+      let activeCount = 0;
+      let completedCount = 0;
+
+      data.forEach((p) => {
+        totalB += parseValue(p.budget);
+        totalS += parseValue(p.spent);
+        if (p.status === "Completed") {
+          completedCount++;
+        } else {
+          activeCount++;
+        }
+      });
+
+      setStats({
+        totalBudget: totalB > 0 ? parseFloat(formatCrore(totalB)) : 0,
+        budgetUtilized: totalS > 0 ? parseFloat(formatCrore(totalS)) : 0,
+        activeProjects: activeCount,
+        completedProjects: completedCount,
+      });
+    } catch (error) {
+      console.error("Error fetching project data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        // Simulating API call with setTimeout
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        setProjects([
-          {
-            id: 1,
-            name: "Road Development",
-            budget: "₹1.5 Crore",
-            spent: "₹75 Lakhs",
-            progress: "50%",
-            status: "In Progress",
-            description:
-              "Major road development project connecting multiple villages",
-            startDate: "2024-01-15",
-            endDate: "2024-06-15",
-            contractor: "ABC Construction Ltd",
-            location: "North District",
-          },
-          {
-            id: 2,
-            name: "Water Treatment Plant",
-            budget: "₹2 Crore",
-            spent: "₹40 Lakhs",
-            progress: "20%",
-            status: "Initial Phase",
-            description: "Installation of modern water treatment facility",
-            startDate: "2024-02-01",
-            endDate: "2024-08-01",
-            contractor: "XYZ Water Solutions",
-            location: "Central Area",
-          },
-          {
-            id: 3,
-            name: "Solar Street Lights",
-            budget: "₹80 Lakhs",
-            spent: "₹60 Lakhs",
-            progress: "75%",
-            status: "Near Completion",
-            description: "Installation of solar-powered street lights",
-            startDate: "2024-01-01",
-            endDate: "2024-03-31",
-            contractor: "Green Energy Systems",
-            location: "All Village Roads",
-          },
-        ]);
-
-        setStats({
-          totalBudget: 4.3,
-          budgetUtilized: 1.75,
-          activeProjects: 8,
-          completedProjects: 12,
-        });
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
 
@@ -103,21 +111,64 @@ const ProjectManagement = () => {
     setShowUpdateModal(true);
   };
 
-  const handleProgressUpdate = (e) => {
+  const handleFormChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleAddProject = async (e) => {
+    e.preventDefault();
+    setFormError("");
+    setSubmitting(true);
+    try {
+      await api.post("/api/projects", formData);
+      setShowAddModal(false);
+      setFormData({
+        name: "",
+        description: "",
+        budget: "",
+        spent: "₹0",
+        progress: "0%",
+        status: "Planning Phase",
+        startDate: "",
+        endDate: "",
+        contractor: "",
+        location: ""
+      });
+      fetchData();
+    } catch (err) {
+      setFormError(err.response?.data?.message || "Failed to add project");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleProgressUpdate = async (e) => {
     e.preventDefault();
     const newProgress = e.target.progress.value + "%";
     const newSpent = e.target.spent.value;
+    const newStatus = e.target.status.value;
 
-    setProjects(
-      projects.map((p) => {
-        if (p.id === selectedProject.id) {
-          return { ...p, progress: newProgress, spent: newSpent };
-        }
-        return p;
-      }),
-    );
+    try {
+      await api.patch(`/api/projects/${selectedProject._id}`, {
+        progress: newProgress,
+        spent: newSpent,
+        status: newStatus
+      });
+      setShowUpdateModal(false);
+      fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to update project progress");
+    }
+  };
 
-    setShowUpdateModal(false);
+  const handleDeleteProject = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this project?")) return;
+    try {
+      await api.delete(`/api/projects/${id}`);
+      fetchData();
+    } catch (error) {
+      console.error("Error deleting project:", error);
+    }
   };
 
   if (loading) {
@@ -180,15 +231,21 @@ const ProjectManagement = () => {
               </li>
               <li
                 className="menu-item"
-                onClick={() => navigate("/collaboration")}
+                onClick={() => navigate("/agri-admin")}
               >
-                Collaboration
+                Agri Appointments
               </li>
               <li
                 className="menu-item"
                 onClick={() => navigate("/job-management")}
               >
                 Job Management
+              </li>
+              <li
+                className="menu-item"
+                onClick={() => navigate("/collaboration")}
+              >
+                Collaboration
               </li>
             </ul>
           </nav>
@@ -211,8 +268,10 @@ const ProjectManagement = () => {
               <h3>Budget Utilized</h3>
               <p className="amount">₹{stats.budgetUtilized} Crore</p>
               <p className="description">
-                {((stats.budgetUtilized / stats.totalBudget) * 100).toFixed(1)}%
-                of total budget
+                {stats.totalBudget > 0
+                  ? ((stats.budgetUtilized / stats.totalBudget) * 100).toFixed(1)
+                  : 0}
+                % of total budget
               </p>
             </div>
 
@@ -230,51 +289,67 @@ const ProjectManagement = () => {
           </div>
 
           <div className="project-list-section fade-in">
-            <h3>Ongoing Projects</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3>Ongoing Projects</h3>
+              <button className="primary-button" onClick={() => setShowAddModal(true)}>
+                Add New Project
+              </button>
+            </div>
+
             <div className="project-list">
-              {projects.map((project) => (
-                <div key={project.id} className="project-card slide-up">
-                  <div className="project-header">
-                    <h4>{project.name}</h4>
-                    <span
-                      className={`status-badge ${project.status.toLowerCase().replace(" ", "-")}`}
-                    >
-                      {project.status}
-                    </span>
-                  </div>
-                  <div className="project-details">
-                    <div className="detail-item">
-                      <span>Budget:</span>
-                      <span>{project.budget}</span>
+              {projects.length === 0 ? (
+                <p>No projects found. Add a new project to begin.</p>
+              ) : (
+                projects.map((project) => (
+                  <div key={project._id} className="project-card slide-up">
+                    <div className="project-header">
+                      <h4>{project.name}</h4>
+                      <span
+                        className={`status-badge ${project.status.toLowerCase().replace(" ", "-")}`}
+                      >
+                        {project.status}
+                      </span>
                     </div>
-                    <div className="detail-item">
-                      <span>Spent:</span>
-                      <span>{project.spent}</span>
+                    <div className="project-details">
+                      <div className="detail-item">
+                        <span>Budget:</span>
+                        <span>{project.budget}</span>
+                      </div>
+                      <div className="detail-item">
+                        <span>Spent:</span>
+                        <span>{project.spent}</span>
+                      </div>
+                      <div className="progress-bar">
+                        <div
+                          className="progress-fill"
+                          style={{ width: project.progress }}
+                        ></div>
+                        <span className="progress-text">{project.progress}</span>
+                      </div>
                     </div>
-                    <div className="progress-bar">
-                      <div
-                        className="progress-fill"
-                        style={{ width: project.progress }}
-                      ></div>
-                      <span className="progress-text">{project.progress}</span>
+                    <div className="project-actions">
+                      <button
+                        className="action-button"
+                        onClick={() => handleViewDetails(project)}
+                      >
+                        View Details
+                      </button>
+                      <button
+                        className="action-button"
+                        onClick={() => handleUpdateProgress(project)}
+                      >
+                        Update Progress
+                      </button>
+                      <button
+                        className="action-button delete-button"
+                        onClick={() => handleDeleteProject(project._id)}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
-                  <div className="project-actions">
-                    <button
-                      className="action-button"
-                      onClick={() => handleViewDetails(project)}
-                    >
-                      View Details
-                    </button>
-                    <button
-                      className="action-button"
-                      onClick={() => handleUpdateProgress(project)}
-                    >
-                      Update Progress
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
@@ -346,6 +421,16 @@ const ProjectManagement = () => {
                       required
                     />
                   </div>
+                  <div className="form-group">
+                    <label>Status:</label>
+                    <select name="status" defaultValue={selectedProject.status} required>
+                      <option value="Planning Phase">Planning Phase</option>
+                      <option value="Approved">Approved</option>
+                      <option value="Upcoming">Upcoming</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                  </div>
                   <div className="modal-actions">
                     <button type="submit" className="save-button">
                       Save Changes
@@ -354,6 +439,109 @@ const ProjectManagement = () => {
                       type="button"
                       className="cancel-button"
                       onClick={() => setShowUpdateModal(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {showAddModal && (
+            <div className="modal-overlay">
+              <div className="modal-content" style={{ maxWidth: "550px" }}>
+                <h2>Add New Project</h2>
+                {formError && <p style={{ color: "red", marginBottom: "10px" }}>{formError}</p>}
+                <form onSubmit={handleAddProject}>
+                  <div className="form-group">
+                    <label>Project Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleFormChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Description</label>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleFormChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Budget (e.g. ₹1.5 Crore or ₹75 Lakhs)</label>
+                    <input
+                      type="text"
+                      name="budget"
+                      placeholder="e.g. ₹1.5 Crore"
+                      value={formData.budget}
+                      onChange={handleFormChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Start Date</label>
+                    <input
+                      type="date"
+                      name="startDate"
+                      value={formData.startDate}
+                      onChange={handleFormChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>End Date</label>
+                    <input
+                      type="date"
+                      name="endDate"
+                      value={formData.endDate}
+                      onChange={handleFormChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Contractor</label>
+                    <input
+                      type="text"
+                      name="contractor"
+                      value={formData.contractor}
+                      onChange={handleFormChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Location</label>
+                    <input
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleFormChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Status</label>
+                    <select name="status" value={formData.status} onChange={handleFormChange} required>
+                      <option value="Planning Phase">Planning Phase</option>
+                      <option value="Upcoming">Upcoming</option>
+                      <option value="Approved">Approved</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                  </div>
+                  <div className="modal-actions">
+                    <button type="submit" className="save-button" disabled={submitting}>
+                      {submitting ? "Adding..." : "Add Project"}
+                    </button>
+                    <button
+                      type="button"
+                      className="cancel-button"
+                      onClick={() => setShowAddModal(false)}
                     >
                       Cancel
                     </button>
