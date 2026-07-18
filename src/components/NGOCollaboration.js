@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './NGOCollaboration.css';
+import './Dashboard.css';
 
 const NGOCollaboration = () => {
+  const navigate = useNavigate();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [activeTab, setActiveTab] = useState('projects');
 
   const projects = [
@@ -55,10 +59,51 @@ const NGOCollaboration = () => {
     }
   ];
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userType');
+    navigate('/');
+  };
+
   return (
-    <div className="ngo-collaboration">
-      <h2>NGO Collaboration Hub</h2>
-      <p className="subtitle">Connect, Share Resources, and Track Impact</p>
+    <div className="dashboard-container">
+      <header className="dashboard-header">
+        <div className="header-left">
+          <img src="/logo.png" alt="Logo" className="logo" />
+          <h1 className="app-name">GramVantage</h1>
+        </div>
+        <div className="header-right">
+          <div className="profile-container">
+            <span className="user-profile" onClick={() => setShowProfileMenu(!showProfileMenu)}>👤</span>
+            {showProfileMenu && (
+              <div className="profile-menu">
+                <div className="profile-info">
+                  <p>Welcome!</p>
+                  <p>NGO User</p>
+                </div>
+                <button className="logout-button" onClick={handleLogout}>Logout</button>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <div className="dashboard-content">
+        <aside className="dashboard-sidebar">
+          <nav className="sidebar-menu">
+            <ul>
+              <li className="menu-item" onClick={() => navigate('/dashboard/ngo')}>Dashboard</li>
+              <li className="menu-item" onClick={() => navigate('/programs')}>Programs</li>
+              <li className="menu-item active" onClick={() => navigate('/ngo-collaboration')}>Collaborations among NGO</li>
+              <li className="menu-item" onClick={() => navigate('/community')}>Community Network</li>
+            </ul>
+          </nav>
+        </aside>
+
+        <main className="main-content">
+          <div className="ngo-collaboration">
+            <h2>NGO Collaboration Hub</h2>
+            <p className="subtitle">Connect, Share Resources, and Track Impact</p>
 
       <div className="ngo-tabs">
         <button
@@ -152,6 +197,8 @@ const NGOCollaboration = () => {
             </div>
           </div>
         )}
+          </div>
+        </main>
       </div>
     </div>
   );

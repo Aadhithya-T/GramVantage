@@ -5,6 +5,7 @@ import {
   Routes,
   Route,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 import LoginPage from "./components/LoginPage";
 import CitizenDashboard from "./components/CitizenDashboard";
@@ -53,6 +54,7 @@ const AppContent = () => {
         <Route path="/agri-admin" element={<AgriAdministration />} />
         <Route path="/community" element={<CommunityNetwork />} />
         <Route path="/program/:id" element={<ProgramDetail />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       {showChatbot && <Chatbot />}
     </>

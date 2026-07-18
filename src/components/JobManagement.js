@@ -187,6 +187,12 @@ const JobManagement = () => {
               >
                 Collaboration
               </li>
+              <li
+                className="menu-item"
+                onClick={() => navigate("/agri-admin")}
+              >
+                Agri Appointments
+              </li>
             </ul>
           </nav>
         </aside>
