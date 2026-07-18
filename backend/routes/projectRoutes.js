@@ -92,4 +92,33 @@ router.delete("/:id", auth, authorize(["official"]), async (req, res) => {
   }
 });
 
+const ProjectFeedback = require("../models/ProjectFeedback");
+
+// POST submit feedback for a project (citizens only)
+router.post("/:id/feedback", auth, authorize(["citizen"]), async (req, res) => {
+  try {
+    const { feedbackText } = req.body;
+    if (!feedbackText || feedbackText.trim().length === 0) {
+      return res.status(400).json({ message: "Feedback content is required" });
+    }
+
+    const project = await Project.findById(req.params.id);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    const feedback = new ProjectFeedback({
+      project: req.params.id,
+      citizen: req.user._id,
+      citizenName: req.user.name,
+      feedbackText: feedbackText.trim(),
+    });
+
+    await feedback.save();
+    res.status(201).json({ message: "Feedback submitted successfully", feedback });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = router;

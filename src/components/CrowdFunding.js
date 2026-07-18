@@ -5,6 +5,12 @@ import './Dashboard.css';
 const CrowdFunding = () => {
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userType');
+    navigate('/');
+  };
+
   const handleNavigation = (path) => {
     navigate(path);
   };
@@ -54,7 +60,7 @@ const CrowdFunding = () => {
         </div>
         <div className="header-right">
           <span className="user-profile">👤</span>
-          <button className="logout-button">Logout</button>
+          <button className="logout-button" onClick={handleLogout}>Logout</button>
         </div>
       </header>
 
@@ -65,7 +71,7 @@ const CrowdFunding = () => {
               <li className="menu-item" onClick={() => handleNavigation('/dashboard/citizen')}>Dashboard</li>
               <li className="menu-item" onClick={() => handleNavigation('/schemes')}>Available Schemes</li>
               <li className="menu-item" onClick={() => handleNavigation('/jobs')}>Jobs Available</li>
-              <li className="menu-item" onClick={() => handleNavigation('/agriculture')}>Agricultural connect</li>
+              <li className="menu-item" onClick={() => handleNavigation('/agriculture')}>Agricultural Connect</li>
               <li className="menu-item" onClick={() => handleNavigation('/projects')}>Projects</li>
               <li className="menu-item active" onClick={() => handleNavigation('/crowdfunding')}>Crowd Funding</li>
             </ul>

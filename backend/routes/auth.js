@@ -142,6 +142,58 @@ router.get('/profile', auth, async (req, res) => {
   }
 });
 
+// Update current user profile
+router.put('/profile', auth, async (req, res) => {
+  try {
+    const { name, email, mobile, aadhar, password } = req.body;
+
+    if (name) {
+      if (name.length < 2) {
+        return res.status(400).json({ message: 'Name must be at least 2 characters long' });
+      }
+      req.user.name = name;
+    }
+
+    if (email) {
+      const emailLower = email.toLowerCase().trim();
+      if (emailLower !== req.user.email) {
+        const emailExists = await User.findOne({ email: emailLower });
+        if (emailExists) {
+          return res.status(400).json({ message: 'Email is already registered' });
+        }
+        req.user.email = emailLower;
+      }
+    }
+
+    if (req.user.userType === 'citizen') {
+      if (mobile) {
+        if (!/^\d{10}$/.test(mobile)) {
+          return res.status(400).json({ message: 'Mobile number must be 10 digits' });
+        }
+        req.user.mobile = mobile;
+      }
+      if (aadhar) {
+        if (!/^\d{12}$/.test(aadhar)) {
+          return res.status(400).json({ message: 'Aadhar number must be 12 digits' });
+        }
+        req.user.aadhar = aadhar;
+      }
+    }
+
+    if (password) {
+      if (password.length < 6) {
+        return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+      }
+      req.user.password = password;
+    }
+
+    await req.user.save();
+    res.json({ message: 'Profile updated successfully', user: req.user });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 // Logout
 router.post('/logout', auth, async (req, res) => {
   try {
