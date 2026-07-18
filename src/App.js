@@ -24,6 +24,8 @@ import Programs from "./components/Programs";
 import Chatbot from "./components/Chatbot";
 import JobManagement from "./components/JobManagement";
 import AgriAdministration from "./components/AgriAdministration";
+import CommunityNetwork from "./components/CommunityNetwork";
+import ProgramDetail from "./components/ProgramDetail";
 
 const AppContent = () => {
   const location = useLocation();
@@ -49,6 +51,8 @@ const AppContent = () => {
         <Route path="/programs" element={<Programs />} />
         <Route path="/job-management" element={<JobManagement />} />
         <Route path="/agri-admin" element={<AgriAdministration />} />
+        <Route path="/community" element={<CommunityNetwork />} />
+        <Route path="/program/:id" element={<ProgramDetail />} />
       </Routes>
       {showChatbot && <Chatbot />}
     </>
