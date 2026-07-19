@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../config/axios";
 import "./SchemeAdministration.css";
+import OfficialSidebar from "./OfficialSidebar";
 
 const AgriAdministration = () => {
   const navigate = useNavigate();
@@ -81,48 +82,7 @@ const AgriAdministration = () => {
       </header>
 
       <div className="dashboard-content">
-        <aside className="dashboard-sidebar">
-          <nav className="sidebar-menu">
-            <ul>
-              <li
-                className="menu-item"
-                onClick={() => navigate("/dashboard/official")}
-              >
-                Dashboard
-              </li>
-              <li
-                className="menu-item"
-                onClick={() => navigate("/project-management")}
-              >
-                Project and Budget Analysis
-              </li>
-              <li
-                className="menu-item"
-                onClick={() => navigate("/scheme-admin")}
-              >
-                Scheme Administration
-              </li>
-              <li
-                className="menu-item"
-                onClick={() => navigate("/job-management")}
-              >
-                Job Management
-              </li>
-              <li
-                className="menu-item active"
-                onClick={() => navigate("/agri-admin")}
-              >
-                Agri Appointments
-              </li>
-              <li
-                className="menu-item"
-                onClick={() => navigate("/collaboration")}
-              >
-                Collaboration
-              </li>
-            </ul>
-          </nav>
-        </aside>
+        <OfficialSidebar activeItem="Agri Appointments" />
 
         <main className="main-content">
           <div className="welcome-section">

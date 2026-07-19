@@ -121,4 +121,35 @@ router.post("/:id/feedback", auth, authorize(["citizen"]), async (req, res) => {
   }
 });
 
+// GET all feedback for a project (officials only)
+router.get("/:id/feedback", auth, authorize(["official"]), async (req, res) => {
+  try {
+    const feedback = await ProjectFeedback.find({ project: req.params.id }).sort({ createdAt: -1 });
+    res.json(feedback);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// PATCH update feedback status (officials only)
+router.patch("/:id/feedback/:feedbackId", auth, authorize(["official"]), async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!["Pending", "Reviewed"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+    const feedback = await ProjectFeedback.findByIdAndUpdate(
+      req.params.feedbackId,
+      { status },
+      { new: true }
+    );
+    if (!feedback) {
+      return res.status(404).json({ message: "Feedback not found" });
+    }
+    res.json(feedback);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = router;

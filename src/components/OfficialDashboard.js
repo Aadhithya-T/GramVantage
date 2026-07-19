@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./OfficialDashboard.css";
 import { motion, AnimatePresence } from "framer-motion";
+import api from "../config/axios";
+import OfficialSidebar from "./OfficialSidebar";
 
 const OfficialDashboard = () => {
   const navigate = useNavigate();
@@ -19,49 +21,8 @@ const OfficialDashboard = () => {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        // Simulating API calls with setTimeout
-        const data = await new Promise((resolve) =>
-          setTimeout(() => {
-            resolve({
-              projects: { count: 15, budget: 4.3 },
-              schemes: { count: 8, pending: 105 },
-              collaborations: { count: 5, messages: 2 },
-              activities: [
-                {
-                  id: 1,
-                  date: "Today",
-                  text: "Approved 5 new scheme applications",
-                  type: "approval",
-                },
-                {
-                  id: 2,
-                  date: "Yesterday",
-                  text: "Updated progress for Road Development Project",
-                  type: "update",
-                },
-                {
-                  id: 3,
-                  date: "2 days ago",
-                  text: "Generated monthly progress report",
-                  type: "report",
-                },
-                {
-                  id: 4,
-                  date: "3 days ago",
-                  text: "New collaboration request from NGO",
-                  type: "collaboration",
-                },
-                {
-                  id: 5,
-                  date: "4 days ago",
-                  text: "Budget allocation updated for Q2",
-                  type: "budget",
-                },
-              ],
-            });
-          }, 1500),
-        );
-
+        const res = await api.get("/api/official/dashboard-stats");
+        const data = res.data;
         setStats({
           projects: data.projects,
           schemes: data.schemes,
@@ -136,48 +97,7 @@ const OfficialDashboard = () => {
       </header>
 
       <div className="dashboard-content">
-        <aside className="dashboard-sidebar">
-          <nav className="sidebar-menu">
-            <ul>
-              <li
-                className="menu-item active"
-                onClick={() => navigate("/dashboard/official")}
-              >
-                Dashboard
-              </li>
-              <li
-                className="menu-item"
-                onClick={() => navigate("/project-management")}
-              >
-                Project and Budget Analysis
-              </li>
-              <li
-                className="menu-item"
-                onClick={() => navigate("/scheme-admin")}
-              >
-                Scheme Administration
-              </li>
-              <li
-                className="menu-item"
-                onClick={() => navigate("/collaboration")}
-              >
-                Collaboration
-              </li>
-              <li
-                className="menu-item"
-                onClick={() => navigate("/job-management")}
-              >
-                Job Management
-              </li>
-              <li
-                className="menu-item"
-                onClick={() => navigate("/agri-admin")}
-              >
-                Agri Appointments
-              </li>
-            </ul>
-          </nav>
-        </aside>
+        <OfficialSidebar activeItem="Dashboard" />
 
         <main className="main-content">
           <div className="welcome-section">

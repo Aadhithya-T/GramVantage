@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../config/axios";
 import "./Dashboard.css";
+import OfficialSidebar from "./OfficialSidebar";
 
 const ProjectManagement = () => {
   const navigate = useNavigate();
@@ -12,6 +13,10 @@ const ProjectManagement = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState(null);
+  const [feedbackList, setFeedbackList] = useState([]);
+  const [loadingFeedback, setLoadingFeedback] = useState(false);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -101,9 +106,32 @@ const ProjectManagement = () => {
     setShowProfileMenu(!showProfileMenu);
   };
 
-  const handleViewDetails = (project) => {
+  const handleViewDetails = async (project) => {
     setSelectedProject(project);
     setShowDetailsModal(true);
+    setLoadingFeedback(true);
+    try {
+      const res = await api.get(`/api/projects/${project._id}/feedback`);
+      setFeedbackList(res.data);
+    } catch (err) {
+      console.error("Error fetching project feedback:", err);
+    } finally {
+      setLoadingFeedback(false);
+    }
+  };
+
+  const handleReviewFeedback = async (feedbackId) => {
+    try {
+      await api.patch(`/api/projects/${selectedProject._id}/feedback/${feedbackId}`, {
+        status: "Reviewed",
+      });
+      // Refresh feedback list
+      const res = await api.get(`/api/projects/${selectedProject._id}/feedback`);
+      setFeedbackList(res.data);
+    } catch (err) {
+      console.error("Error updating feedback status:", err);
+      alert(err.response?.data?.message || "Failed to update feedback status");
+    }
   };
 
   const handleUpdateProgress = (project) => {
@@ -161,13 +189,21 @@ const ProjectManagement = () => {
     }
   };
 
-  const handleDeleteProject = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this project?")) return;
+  const handleDeleteProject = (id) => {
+    setProjectToDelete(id);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!projectToDelete) return;
     try {
-      await api.delete(`/api/projects/${id}`);
+      await api.delete(`/api/projects/${projectToDelete}`);
+      setShowConfirmModal(false);
+      setProjectToDelete(null);
       fetchData();
     } catch (error) {
       console.error("Error deleting project:", error);
+      alert(error.response?.data?.message || "Failed to delete project");
     }
   };
 
@@ -208,48 +244,7 @@ const ProjectManagement = () => {
       </header>
 
       <div className="dashboard-content">
-        <aside className="dashboard-sidebar">
-          <nav className="sidebar-menu">
-            <ul>
-              <li
-                className="menu-item"
-                onClick={() => navigate("/dashboard/official")}
-              >
-                Dashboard
-              </li>
-              <li
-                className="menu-item active"
-                onClick={() => navigate("/project-management")}
-              >
-                Project and Budget analysis
-              </li>
-              <li
-                className="menu-item"
-                onClick={() => navigate("/scheme-admin")}
-              >
-                Scheme Administration
-              </li>
-              <li
-                className="menu-item"
-                onClick={() => navigate("/agri-admin")}
-              >
-                Agri Appointments
-              </li>
-              <li
-                className="menu-item"
-                onClick={() => navigate("/job-management")}
-              >
-                Job Management
-              </li>
-              <li
-                className="menu-item"
-                onClick={() => navigate("/collaboration")}
-              >
-                Collaboration
-              </li>
-            </ul>
-          </nav>
-        </aside>
+        <OfficialSidebar activeItem="Project and Budget Analysis" />
 
         <main className="main-content">
           <div className="welcome-section">
@@ -355,43 +350,106 @@ const ProjectManagement = () => {
 
           {showDetailsModal && selectedProject && (
             <div className="modal-overlay">
-              <div className="modal-content">
+              <div className="modal-content" style={{ maxWidth: "700px", width: "90%" }}>
                 <h2>{selectedProject.name}</h2>
-                <div className="modal-details">
-                  <p>
-                    <strong>Description:</strong> {selectedProject.description}
-                  </p>
-                  <p>
-                    <strong>Status:</strong> {selectedProject.status}
-                  </p>
-                  <p>
-                    <strong>Budget:</strong> {selectedProject.budget}
-                  </p>
-                  <p>
-                    <strong>Spent:</strong> {selectedProject.spent}
-                  </p>
-                  <p>
-                    <strong>Progress:</strong> {selectedProject.progress}
-                  </p>
-                  <p>
-                    <strong>Start Date:</strong> {selectedProject.startDate}
-                  </p>
-                  <p>
-                    <strong>End Date:</strong> {selectedProject.endDate}
-                  </p>
-                  <p>
-                    <strong>Contractor:</strong> {selectedProject.contractor}
-                  </p>
-                  <p>
-                    <strong>Location:</strong> {selectedProject.location}
-                  </p>
+                <div className="modal-details" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "20px" }}>
+                  <div>
+                    <p><strong>Description:</strong> {selectedProject.description}</p>
+                    <p><strong>Location:</strong> {selectedProject.location}</p>
+                    <p><strong>Contractor:</strong> {selectedProject.contractor}</p>
+                    <p><strong>Timeline:</strong> {selectedProject.startDate} to {selectedProject.endDate}</p>
+                  </div>
+                  <div style={{ borderLeft: "1px solid #eee", paddingLeft: "15px" }}>
+                    <p><strong>Status:</strong> <span className={`status-badge ${selectedProject.status.toLowerCase().replace(" ", "-")}`}>{selectedProject.status}</span></p>
+                    <p><strong>Budget:</strong> {selectedProject.budget}</p>
+                    <p><strong>Spent:</strong> {selectedProject.spent}</p>
+                    <div style={{ marginTop: "10px" }}>
+                      <strong>Progress:</strong>
+                      <div className="progress-bar">
+                        <div className="progress-fill" style={{ width: selectedProject.progress }}></div>
+                      </div>
+                      <span className="progress-text">{selectedProject.progress} Complete</span>
+                    </div>
+                  </div>
                 </div>
-                <button
-                  className="close-button"
-                  onClick={() => setShowDetailsModal(false)}
-                >
-                  Close
-                </button>
+
+                <hr style={{ border: "0", borderTop: "1px solid #eee", margin: "20px 0" }} />
+
+                <div className="feedback-section">
+                  <h3>Citizen Feedback & Complaints ({feedbackList.length})</h3>
+                  {loadingFeedback ? (
+                    <p>Loading feedback...</p>
+                  ) : feedbackList.length === 0 ? (
+                    <p style={{ color: "#7f8c8d", fontStyle: "italic", margin: "10px 0" }}>No complaints or feedback submitted yet for this project.</p>
+                  ) : (
+                    <div className="feedback-list" style={{ maxHeight: "250px", overflowY: "auto", marginTop: "10px" }}>
+                      {feedbackList.map((fb) => (
+                        <div key={fb._id} style={{ border: "1px solid #e2e8f0", borderRadius: "8px", padding: "12px", marginBottom: "10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <div style={{ flex: 1, paddingRight: "15px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "5px" }}>
+                              <strong style={{ color: "#2d3748" }}>{fb.citizenName}</strong>
+                              <span className={`status-badge ${fb.status === "Reviewed" ? "approved" : "pending"}`} style={{ fontSize: "10px", padding: "2px 6px" }}>
+                                {fb.status}
+                              </span>
+                            </div>
+                            <p style={{ margin: 0, fontSize: "14px", color: "#4a5568" }}>{fb.feedbackText}</p>
+                            <span style={{ fontSize: "11px", color: "#a0aec0" }}>
+                              {new Date(fb.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          {fb.status === "Pending" && (
+                            <button
+                              onClick={() => handleReviewFeedback(fb._id)}
+                              className="save-button"
+                              style={{ padding: "6px 12px", fontSize: "12px", backgroundColor: "#27ae60", minWidth: "auto", cursor: "pointer" }}
+                            >
+                              Mark Reviewed
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="modal-actions" style={{ marginTop: "20px", display: "flex", justifyContent: "flex-end" }}>
+                  <button
+                    className="cancel-button"
+                    onClick={() => {
+                      setShowDetailsModal(false);
+                      setFeedbackList([]);
+                    }}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showConfirmModal && (
+            <div className="modal-overlay">
+              <div className="modal-content" style={{ maxWidth: "400px" }}>
+                <h2>Confirm Deletion</h2>
+                <p style={{ margin: "15px 0", color: "#4a5568" }}>Are you sure you want to delete this project? This action cannot be undone.</p>
+                <div className="modal-actions" style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                  <button
+                    onClick={handleConfirmDelete}
+                    className="save-button"
+                    style={{ backgroundColor: "#e74c3c", color: "white" }}
+                  >
+                    Yes, Delete
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowConfirmModal(false);
+                      setProjectToDelete(null);
+                    }}
+                    className="cancel-button"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           )}

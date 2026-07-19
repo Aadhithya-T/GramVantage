@@ -544,81 +544,122 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
+.project-list,
+.projects-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
 .project-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   background: #ffffff;
   border-radius: 12px;
-  padding: 1.8rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
+  padding: 1.6rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  min-height: 280px;
 }
 
 .project-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 10px;
+}
+
+.project-header h4 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #2c3e50;
+  line-height: 1.35;
+}
+
+.project-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.project-details .detail-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.92rem;
+}
+
+.project-details .detail-item span:first-child {
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.project-details .detail-item span:last-child {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.project-progress {
+  margin-top: auto;
+  margin-bottom: 1rem;
 }
 
 .status-badge {
-  padding: 0.4rem 1rem;
+  padding: 0.35rem 0.8rem;
   border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.status-badge.in-progress,
+.status-badge.planning-phase,
+.status-badge.upcoming,
+.status-badge.approved,
+.status-badge.completed {
+  border: 1px solid transparent;
 }
 
 .status-badge.in-progress {
   background-color: #e8f0fe;
   color: #1a73e8;
-  border: 1px solid #1a73e8;
+  border-color: #1a73e8;
 }
 
-.status-badge.initial-phase {
+.status-badge.planning-phase {
   background-color: #fff3e0;
   color: #f57c00;
-  border: 1px solid #f57c00;
+  border-color: #f57c00;
 }
 
-.status-badge.near-completion {
+.status-badge.upcoming {
+  background-color: #e1f5fe;
+  color: #0288d1;
+  border-color: #0288d1;
+}
+
+.status-badge.approved {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-color: #2e7d32;
+}
+
+.status-badge.completed {
   background-color: #e0f2f1;
   color: #00897b;
-  border: 1px solid #00897b;
-}
-
-.progress-bar {
-  height: 10px;
-  background-color: #e9ecef;
-  border-radius: 6px;
-  overflow: hidden;
-  margin: 1.2rem 0;
-  position: relative;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(45deg, #1a73e8, #34a853);
-  border-radius: 6px;
-  transition: width 0.5s ease;
-}
-
-.action-button {
-  padding: 0.6rem 1.2rem;
-  border: none;
-  border-radius: 6px;
-  background: linear-gradient(45deg, #1a73e8, #34a853);
-  color: white;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.9rem;
-}
-
-.action-button:hover {
-  background: linear-gradient(45deg, #1557b0, #2d8745);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-color: #00897b;
 }
 
 .progress-bar {
@@ -627,19 +668,58 @@
   background-color: #f0f0f0;
   border-radius: 4px;
   overflow: hidden;
-  margin: 1rem 0;
+  margin: 0.6rem 0;
 }
 
 .progress-fill {
   height: 100%;
-  background-color: #3498db;
+  background: linear-gradient(45deg, #1a73e8, #34a853);
   border-radius: 4px;
-  transition: width 0.3s ease;
+  transition: width 0.4s ease;
 }
 
 .progress-text {
   color: #7f8c8d;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.project-actions {
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid #f0f3f6;
+  padding-top: 0.9rem;
+  margin-top: auto;
+}
+
+.action-button {
+  flex: 1;
+  padding: 0.55rem 0.8rem;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(45deg, #1a73e8, #34a853);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.action-button:hover {
+  background: linear-gradient(45deg, #1557b0, #2d8745);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.action-button.delete-button {
+  background: #e74c3c;
+}
+
+.action-button.delete-button:hover {
+  background: #c0392b;
 }
 
 .recent-activity {
