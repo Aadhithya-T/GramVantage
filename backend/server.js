@@ -9,6 +9,7 @@ const jobRoutes = require("./routes/jobRoutes");
 const agriRoutes = require("./routes/agriRoutes");
 const projectRoutes = require("./routes/projectRoutes");
 const officialRoutes = require("./routes/officialRoutes");
+const citizenRoutes = require("./routes/citizenRoutes");
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use("/api/jobs", jobRoutes);
 app.use("/api/agri", agriRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/official", officialRoutes);
+app.use("/api/citizen", citizenRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

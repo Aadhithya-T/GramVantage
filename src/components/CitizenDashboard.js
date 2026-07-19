@@ -12,6 +12,7 @@ const CitizenDashboard = () => {
     appointments: 0,
     projects: 0,
   });
+  const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -46,48 +47,10 @@ const CitizenDashboard = () => {
           aadhar: profileRes.data.aadhar || '',
         });
 
-        // Fetch Applications
-        let appsCount = 0;
-        try {
-          const appsRes = await api.get('/api/schemes/my/applications');
-          appsCount = appsRes.data.length;
-        } catch (e) {
-          console.error("Error fetching applications:", e);
-        }
-
-        // Fetch Jobs
-        let jobsCount = 0;
-        try {
-          const jobsRes = await api.get('/api/jobs');
-          jobsCount = jobsRes.data.length;
-        } catch (e) {
-          console.error("Error fetching jobs:", e);
-        }
-
-        // Fetch Agri Appointments
-        let appointmentsCount = 0;
-        try {
-          const appointmentsRes = await api.get('/api/agri/appointments/my');
-          appointmentsCount = appointmentsRes.data.length;
-        } catch (e) {
-          console.error("Error fetching appointments:", e);
-        }
-
-        // Fetch Projects
-        let projectsCount = 0;
-        try {
-          const projectsRes = await api.get('/api/projects');
-          projectsCount = projectsRes.data.length;
-        } catch (e) {
-          console.error("Error fetching projects:", e);
-        }
-
-        setStats({
-          applications: appsCount,
-          jobs: jobsCount,
-          appointments: appointmentsCount,
-          projects: projectsCount,
-        });
+        // Fetch Dashboard stats and activities
+        const dashboardRes = await api.get('/api/citizen/dashboard-stats');
+        setStats(dashboardRes.data.stats);
+        setActivities(dashboardRes.data.activities);
 
       } catch (err) {
         console.error("Error loading profile:", err);
@@ -194,18 +157,23 @@ const CitizenDashboard = () => {
             <div className="dashboard-card" style={{ cursor: 'default' }}>
               <h3>Recent Activity</h3>
               <div className="activity-list" style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div className="activity-item" style={{ borderBottom: '1px solid #f0f0f0', paddingBottom: '0.8rem' }}>
-                  <span className="activity-date" style={{ fontSize: '0.85rem', color: '#95a5a6', display: 'block', marginBottom: '0.3rem' }}>Today</span>
-                  <p style={{ margin: 0, color: '#34495e', fontSize: '0.95rem' }}>Your application for Agricultural Subsidy has been approved</p>
-                </div>
-                <div className="activity-item" style={{ borderBottom: '1px solid #f0f0f0', paddingBottom: '0.8rem' }}>
-                  <span className="activity-date" style={{ fontSize: '0.85rem', color: '#95a5a6', display: 'block', marginBottom: '0.3rem' }}>Yesterday</span>
-                  <p style={{ margin: 0, color: '#34495e', fontSize: '0.95rem' }}>New scheme announcement: Rural Housing Support</p>
-                </div>
-                <div className="activity-item" style={{ paddingBottom: '0.5rem' }}>
-                  <span className="activity-date" style={{ fontSize: '0.85rem', color: '#95a5a6', display: 'block', marginBottom: '0.3rem' }}>3 days ago</span>
-                  <p style={{ margin: 0, color: '#34495e', fontSize: '0.95rem' }}>Document verification completed for Education Grant</p>
-                </div>
+                {activities.map((activity, index) => (
+                  <div 
+                    key={activity.id || index} 
+                    className="activity-item" 
+                    style={{ 
+                      borderBottom: index === activities.length - 1 ? 'none' : '1px solid #f0f0f0', 
+                      paddingBottom: '0.8rem' 
+                    }}
+                  >
+                    <span className="activity-date" style={{ fontSize: '0.85rem', color: '#95a5a6', display: 'block', marginBottom: '0.3rem' }}>
+                      {activity.date}
+                    </span>
+                    <p style={{ margin: 0, color: '#34495e', fontSize: '0.95rem' }}>
+                      {activity.text}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
 
