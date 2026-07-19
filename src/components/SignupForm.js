@@ -118,7 +118,7 @@ const SignupForm = () => {
           NGO Signup
         </button>
       </div>
-      <form onSubmit={handleSubmit} className="login-form">
+      <form onSubmit={handleSubmit} className="login-form" autoComplete="off">
         {error && <div className="login-error">{error}</div>}
         <input
           type="text"
@@ -127,6 +127,7 @@ const SignupForm = () => {
           value={formData.name}
           onChange={handleInputChange}
           className="login-input"
+          autoComplete="off"
           required
         />
         <input
@@ -136,6 +137,7 @@ const SignupForm = () => {
           value={formData.email}
           onChange={handleInputChange}
           className="login-input"
+          autoComplete="off"
           required
         />
         {activeTab === 'citizen' ? (
@@ -146,6 +148,7 @@ const SignupForm = () => {
             value={formData.mobile}
             onChange={handleInputChange}
             className="login-input"
+            autoComplete="off"
             required
           />
         ) : (
@@ -159,6 +162,7 @@ const SignupForm = () => {
             maxLength={5}
             pattern="\d{5}"
             title="Please enter a valid 5-digit organization code"
+            autoComplete="off"
             required
           />
         )}
@@ -170,6 +174,7 @@ const SignupForm = () => {
             value={formData.aadhar}
             onChange={handleInputChange}
             className="login-input"
+            autoComplete="off"
             required
           />
         )}
@@ -180,6 +185,7 @@ const SignupForm = () => {
           value={formData.password}
           onChange={handleInputChange}
           className="login-input"
+          autoComplete="new-password"
           required
         />
         <input
@@ -189,6 +195,7 @@ const SignupForm = () => {
           value={formData.confirmPassword}
           onChange={handleInputChange}
           className="login-input"
+          autoComplete="new-password"
           required
         />
         <button

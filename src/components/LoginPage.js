@@ -151,7 +151,7 @@ const LoginPage = () => {
                 NGO Login
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="login-form">
+            <form onSubmit={handleSubmit} className="login-form" autoComplete="off">
               {error && <div className="login-error">{error}</div>}
               {activeTab === "citizen" ? (
                 <input
@@ -161,6 +161,7 @@ const LoginPage = () => {
                   value={formData.mobile}
                   onChange={handleInputChange}
                   className="login-input"
+                  autoComplete="off"
                   required
                 />
               ) : (
@@ -174,6 +175,7 @@ const LoginPage = () => {
                   maxLength={5}
                   pattern="\d{5}"
                   title="Please enter a valid 5-digit organization code"
+                  autoComplete="off"
                   required
                 />
               )}
@@ -184,6 +186,7 @@ const LoginPage = () => {
                 value={formData.password}
                 onChange={handleInputChange}
                 className="login-input"
+                autoComplete="new-password"
                 required
               />
               <button
